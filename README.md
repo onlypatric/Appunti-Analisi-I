@@ -3,7 +3,7 @@
 ## 1. Concetti di base
 
 Cartella: `01-concetti-di-base`
- a
+
 ### 1.1 Insiemi ([appunti](01-concetti-di-base/1.1-insiemi.md))
 
 * Concetto di insieme, elemento, appartenenza

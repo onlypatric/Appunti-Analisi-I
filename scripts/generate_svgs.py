@@ -273,6 +273,129 @@ def plot_venn_union_intersection() -> None:
     save_svg(fig, "venn_union_intersection.svg")
 
 
+def _setup_venn_axes(ax: plt.Axes, title: str) -> None:
+    ax.set_aspect("equal")
+    ax.set_xlim(-2.4, 2.4)
+    ax.set_ylim(-1.9, 1.9)
+    ax.axis("off")
+    ax.set_title(title)
+
+
+def _venn_circles() -> tuple[Circle, Circle]:
+    # Two circles centered at (-0.8,0) and (0.8,0), radius 1.25
+    a = Circle((-0.8, 0.0), 1.25, fill=False, linewidth=2.0, edgecolor="black")
+    b = Circle((0.8, 0.0), 1.25, fill=False, linewidth=2.0, edgecolor="black")
+    return a, b
+
+
+def _draw_venn_labels(ax: plt.Axes, universe: bool) -> None:
+    ax.text(-1.65, 1.35, "A", fontsize=12)
+    ax.text(1.45, 1.35, "B", fontsize=12)
+    if universe:
+        ax.text(-2.25, 1.55, "U", fontsize=12)
+
+
+def _draw_universe(ax: plt.Axes) -> Rectangle:
+    rect = Rectangle((-2.25, -1.55), 4.5, 3.1, fill=False, edgecolor="black", linewidth=2.0)
+    ax.add_patch(rect)
+    return rect
+
+
+def plot_venn_set_differences() -> None:
+    fig, axes = plt.subplots(1, 3, figsize=(10.2, 3.6))
+
+    # Panel 1: A \ B
+    ax = axes[0]
+    _setup_venn_axes(ax, r"Differenza: $A\setminus B$")
+    a_outline, b_outline = _venn_circles()
+    a_fill = Circle(a_outline.center, a_outline.radius, color="C0", alpha=0.22)
+    b_clip = Circle(b_outline.center, b_outline.radius, color="white", alpha=1.0)
+    b_clip.set_clip_path(a_fill)
+    ax.add_patch(a_fill)
+    ax.add_patch(b_clip)
+    ax.add_patch(a_outline)
+    ax.add_patch(b_outline)
+    _draw_venn_labels(ax, universe=False)
+
+    # Panel 2: B \ A
+    ax = axes[1]
+    _setup_venn_axes(ax, r"Differenza: $B\setminus A$")
+    a_outline, b_outline = _venn_circles()
+    b_fill = Circle(b_outline.center, b_outline.radius, color="C1", alpha=0.22)
+    a_clip = Circle(a_outline.center, a_outline.radius, color="white", alpha=1.0)
+    a_clip.set_clip_path(b_fill)
+    ax.add_patch(b_fill)
+    ax.add_patch(a_clip)
+    ax.add_patch(a_outline)
+    ax.add_patch(b_outline)
+    _draw_venn_labels(ax, universe=False)
+
+    # Panel 3: symmetric difference
+    ax = axes[2]
+    _setup_venn_axes(ax, r"Differenza simmetrica: $A\triangle B$")
+    a_outline, b_outline = _venn_circles()
+    a_fill = Circle(a_outline.center, a_outline.radius, color="C0", alpha=0.22)
+    b_fill = Circle(b_outline.center, b_outline.radius, color="C1", alpha=0.22)
+    # Remove overlap by painting the intersection white.
+    overlap_white = Circle(b_outline.center, b_outline.radius, color="white", alpha=1.0)
+    overlap_white.set_clip_path(a_fill)
+    ax.add_patch(a_fill)
+    ax.add_patch(b_fill)
+    ax.add_patch(overlap_white)
+    ax.add_patch(a_outline)
+    ax.add_patch(b_outline)
+    _draw_venn_labels(ax, universe=False)
+
+    fig.tight_layout()
+    save_svg(fig, "venn_set_differences.svg")
+
+
+def plot_venn_complements() -> None:
+    fig, axes = plt.subplots(1, 3, figsize=(10.6, 3.6))
+
+    # Panel 1: A^c in U
+    ax = axes[0]
+    _setup_venn_axes(ax, r"Complementare: $A^c$ (in $U$)")
+    rect = _draw_universe(ax)
+    rect_fill = Rectangle(rect.get_xy(), rect.get_width(), rect.get_height(), color="C2", alpha=0.18)
+    ax.add_patch(rect_fill)
+    a_outline, b_outline = _venn_circles()
+    a_white = Circle(a_outline.center, a_outline.radius, color="white", alpha=1.0)
+    ax.add_patch(a_white)
+    ax.add_patch(a_outline)
+    ax.add_patch(b_outline)
+    _draw_venn_labels(ax, universe=True)
+
+    # Panel 2: (A ∪ B)^c
+    ax = axes[1]
+    _setup_venn_axes(ax, r"De Morgan: $(A\cup B)^c$")
+    rect = _draw_universe(ax)
+    rect_fill = Rectangle(rect.get_xy(), rect.get_width(), rect.get_height(), color="C2", alpha=0.18)
+    ax.add_patch(rect_fill)
+    a_outline, b_outline = _venn_circles()
+    ax.add_patch(Circle(a_outline.center, a_outline.radius, color="white", alpha=1.0))
+    ax.add_patch(Circle(b_outline.center, b_outline.radius, color="white", alpha=1.0))
+    ax.add_patch(a_outline)
+    ax.add_patch(b_outline)
+    _draw_venn_labels(ax, universe=True)
+
+    # Panel 3: A^c ∩ B^c (same region as previous)
+    ax = axes[2]
+    _setup_venn_axes(ax, r"De Morgan: $A^c\cap B^c$")
+    rect = _draw_universe(ax)
+    rect_fill = Rectangle(rect.get_xy(), rect.get_width(), rect.get_height(), color="C2", alpha=0.18)
+    ax.add_patch(rect_fill)
+    a_outline, b_outline = _venn_circles()
+    ax.add_patch(Circle(a_outline.center, a_outline.radius, color="white", alpha=1.0))
+    ax.add_patch(Circle(b_outline.center, b_outline.radius, color="white", alpha=1.0))
+    ax.add_patch(a_outline)
+    ax.add_patch(b_outline)
+    _draw_venn_labels(ax, universe=True)
+
+    fig.tight_layout()
+    save_svg(fig, "venn_complements_demorgan.svg")
+
+
 def plot_relation_digraph_example() -> None:
     points = [1, 2, 3]
     coords = {1: (-1.0, 0.0), 2: (0.0, 1.0), 3: (1.0, 0.0)}
@@ -802,6 +925,8 @@ def main() -> None:
     plot_sin_vs_x_near_zero()
     plot_one_minus_cos_vs_x2_over_2()
     plot_venn_union_intersection()
+    plot_venn_set_differences()
+    plot_venn_complements()
     plot_relation_digraph_example()
     plot_hasse_divisibility_12()
     plot_function_mapping_injective_surjective()

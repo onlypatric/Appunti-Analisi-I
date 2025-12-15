@@ -310,3 +310,11 @@ Cartella: `06-equazioni-differenziali`
 * Punti di equilibrio di un’EDO autonoma
 * Stabilità/instabilità qualitativa
 * Diagrammi di fase in R (linea delle fasi)
+
+---
+
+## Esempi ed esercizi
+
+Cartella: `esempi`
+
+Raccolta: [Esempi ed esercizi](esempi/README.md)
